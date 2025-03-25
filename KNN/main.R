@@ -5,14 +5,14 @@
 library('plot3D')
 
 # Definição dos parâmetros de escala para os grupos de pontos e o número de pontos por classe
-s1 <- 1  # Escala do primeiro grupo de pontos (desvio padrão da distribuição normal)
-s2 <- 1  # Escala do segundo grupo de pontos
+s1 <- 0.921  # Escala do primeiro grupo de pontos (desvio padrão da distribuição normal)
+s2 <- 0.921  # Escala do segundo grupo de pontos
 nc <- 100  # Número de pontos em cada classe
 
 # Geração de dois conjuntos de pontos (xc1 e xc2), cada um com distribuição normal
 # O grupo xc1 é centrado em (2,2) e o grupo xc2 é centrado em (3,3)
 xc1 <- matrix(rnorm(nc * 2), ncol = 2) * s1 + t(matrix(c(2, 2), nrow = 2, ncol = nc))
-xc2 <- matrix(rnorm(nc * 2), ncol = 2) * s2 + t(matrix(c(3, 3), nrow = 2, ncol = nc))
+xc2 <- matrix(rnorm(nc * 2), ncol = 2) * s2 + t(matrix(c(4, 4), nrow = 2, ncol = nc))
 
 # Criação dos rótulos das classes: 1 para o grupo xc1 e -1 para o grupo xc2
 y1 <- array(1, c(nc, 1))
