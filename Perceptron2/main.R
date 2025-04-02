@@ -2,7 +2,6 @@ rm(list = ls())
 library(mlbench)
 library(caret)
 library(dplyr)
-library(neuralnet)
 
 # Carregar os dados
 data("BreastCancer")
@@ -25,11 +24,35 @@ data2$Class <- as.numeric(data2$Class)
 set.seed(42)
 k_folds <- createFolds(data2$Class, k = 10, list = TRUE)
 
-# Função para treinar um Perceptron Simples
-train_adaline_perceptron <- function(train_data) {
-  formula <- as.formula("Class ~ .")
-  model <- neuralnet(formula, data = train_data, hidden = 1, linear.output = FALSE, threshold = 0.01)
-  return(model)
+# Função para treinar um Perceptron Clássico
+train_perceptron <- function(train_data, lr = 0.1, epochs = 100) {
+  X <- as.matrix(train_data[, -10])  # Features
+  y <- as.numeric(train_data$Class)  # Labels
+  
+  # Inicializar pesos aleatórios
+  weights <- runif(ncol(X) + 1, -1, 1)  # +1 para o bias
+  
+  # Adicionar coluna de bias (+1)
+  X <- cbind(1, X)
+  
+  # Treinamento
+  for (epoch in 1:epochs) {
+    for (i in 1:nrow(X)) {
+      z <- sum(weights * X[i, ])  # Produto interno
+      y_pred <- ifelse(z >= 0, 1, 0)  # Função degrau
+      error <- y[i] - y_pred  # Cálculo do erro
+      weights <- weights + lr * error * X[i, ]  # Atualização dos pesos
+    }
+  }
+  return(weights)
+}
+
+# Função para fazer previsões
+predict_perceptron <- function(X, weights) {
+  X <- as.matrix(X)
+  X <- cbind(1, X)  # Adicionar bias
+  predictions <- ifelse(X %*% weights >= 0, 1, 0)
+  return(predictions)
 }
 
 # Vetor para armazenar as acurácias
@@ -41,21 +64,15 @@ for (i in 1:10) {
   test_data <- data2[test_indexes, ]
   train_data <- data2[-test_indexes, ]
   
-  # Treinar o modelo
-  model <- train_adaline_perceptron(train_data)
-  
-  # Verificar se a rede foi treinada corretamente
-  if (is.null(model$net.result)) {
-    next  # Pular fold se o modelo não convergir
-  }
+  # Treinar o Perceptron
+  weights <- train_perceptron(train_data)
   
   # Aplicar ao conjunto de teste
-  test_features <- test_data[, -10]  # Certificar que apenas as features são usadas
-  pred <- compute(model, test_features)$net.result
-  pred_class <- ifelse(pred > 0.5, 1, 0)
+  test_features <- test_data[, -10]  # Apenas features
+  pred <- predict_perceptron(test_features, weights)
   
   # Calcular a acurácia
-  acc <- sum(pred_class == test_data$Class) / nrow(test_data)
+  acc <- sum(pred == test_data$Class) / nrow(test_data)
   accuracies <- c(accuracies, acc)
 }
 
@@ -67,4 +84,5 @@ accuracy_sd <- sd(accuracies, na.rm = TRUE)
 cat("Acurácias para cada fold:", accuracies, "\n")
 cat("Acurácia Média:", accuracy_mean, "\n")
 cat("Desvio Padrão:", accuracy_sd, "\n")
+
 
