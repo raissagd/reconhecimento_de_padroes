@@ -19,7 +19,7 @@ kde_multi <- function(xi, xall, h) {
 }
 
 N<-30
-h<-0.5
+h<-2
 m1<-c(2, 2)
 m2<-c(4, 4)
 m3<-c(2, 4)
@@ -67,7 +67,7 @@ plot(xc1[, 1], xc1[, 2], col = "red", xlim = c(0, 6), ylim = c(0, 6), xlab = "X1
 par(new = TRUE)
 plot(xc2[, 1], xc2[, 2], col = "purple", xlim = c(0, 6), ylim = c(0, 6), xlab = "X1", ylab = "X2", main = "", pch = 19)
 
-persp3d(seqx1x2, seqx1x2, MZ, xlim = c(0,6), ylim = c(0,6), col = "lightblue", xlab = "X1", ylab = "X2", zlab = "Densidade de Kernel Multivariada", main = "Densidade de Kernel Multivariada")
+#persp3d(seqx1x2, seqx1x2, MZ, xlim = c(0,6), ylim = c(0,6), col = "lightblue", xlab = "X1", ylab = "X2", zlab = "Densidade de Kernel Multivariada", main = "Densidade de Kernel Multivariada")
 
 # ------------------------------------------------------------------------
 # Gráfico das Densidades Estimadas
@@ -92,4 +92,24 @@ plot(pxc1vec, pxc2vec,
      xlab = "p(x | Classe -1)", ylab = "p(x | Classe +1)",
      main = "Espaço das Densidades Estimadas (KDE)")
 abline(0, 1, col = "black", lty = 2)
+
+# ------------------------------------------------------------------------
+# Avaliação do Desempenho do Classificador
+
+# Classificação baseada na comparação das densidades
+# Se p(x|Classe -1) > p(x|Classe +1), então classifica como -1, senão +1
+y_pred <- ifelse(pxc1vec > pxc2vec, -1, 1)
+
+# Cálculo da acurácia
+acuracia <- mean(y_pred == yvec)
+erro_classificacao <- 1 - acuracia
+
+# Log-verossimilhança
+# Para cada ponto, usamos a densidade da classe verdadeira
+log_verossimilhanca <- sum(log(ifelse(yvec == -1, pxc1vec, pxc2vec)))
+
+# Exibir os resultados
+cat("Acurácia:", round(acuracia, 4), "\n")
+cat("Erro de Classificação:", round(erro_classificacao, 4), "\n")
+cat("Log-Verossimilhança:", round(log_verossimilhanca, 4), "\n")
 
