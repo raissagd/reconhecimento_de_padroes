@@ -1,3 +1,1 @@
-# Introdução a Reconhecimento de Padrões da UFMG 
-
-1. KNN
+# Disciplina de Introdução ao Reconhecimento de Padrões -  UFMG 2025/01
